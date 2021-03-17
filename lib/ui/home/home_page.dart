@@ -10,7 +10,7 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       body: Obx(() {
         return ListView(
-          children: model.urls.map(toTile).toList(),
+          children: model.data.map(toTile).toList(),
         );
       }),
     );
