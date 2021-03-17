@@ -8,7 +8,17 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(),
+      body: Obx(() {
+        return ListView(
+          children: model.urls.map(toTile).toList(),
+        );
+      }),
+    );
+  }
+
+  ListTile toTile(url) {
+    return ListTile(
+      title: Text(url),
     );
   }
 }

@@ -19,14 +19,16 @@ class Model extends GetxController with Log {
 }
 ''';
 
+  final urls = <String>[].obs;
+
   @override
   void onInit() async {
     super.onInit();
-    final sheets = GSheets(_credentials);
-    final spreadsheet = await sheets
-        .spreadsheet('1_9FqFUwSYWLhLF-VEXJYMgD2CB8z0gKbP8BC8nHXa4Y');
-    var sheet = await spreadsheet.worksheetByTitle('Sheet1');
-    log.info(await sheet?.values.value(column: 1, row: 1));
+    await GSheets(_credentials)
+        .spreadsheet('1_9FqFUwSYWLhLF-VEXJYMgD2CB8z0gKbP8BC8nHXa4Y')
+        .then((value) => value.worksheetByTitle('Sheet1'))
+        .then((value) async => await value?.values.column(1))
+        .then((value) => urls.addAll(value!));
   }
 
   @override
