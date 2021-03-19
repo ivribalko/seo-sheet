@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:get/get.dart';
 import 'package:google_place/google_place.dart';
 import 'package:gsheets/gsheets.dart';
+import 'package:http/http.dart' as http;
 
 import 'common.dart';
 
@@ -10,6 +11,7 @@ class Model extends GetxController with Log {
   final data = <String>[].obs;
   final _sheet = Get.find<GSheets>();
   final _place = Get.find<GooglePlace>();
+  final _regex = RegExp(r'(\d*) reviews');
 
   @override
   void onInit() async {
@@ -17,14 +19,13 @@ class Model extends GetxController with Log {
     await _sheet
         .spreadsheet('105boKm8hweT3QIErlXx6PBLOQoaNkGKpM8sKwClpcBY')
         .then((value) => value.worksheetByTitle('Лист1'))
-        .then((value) async => await value?.values.column(1))
+        .then((value) async => await value?.values.column(2))
         .then((value) => value!.map((e) => Future.value(e)
-            .then((value) => Uri.parse(value).pathSegments[2])
-            .then(getPlaces)
-            .then(toPlaceId)
-            .then(toDetails)))
+            .then(Uri.parse)
+            .then(http.get)
+            .then((value) => value.body)
+            .then((value) => _regex.firstMatch(value)![1]!)))
         .then((value) async => await Future.wait(value))
-        .then(toData)
         .then(data.addAll);
   }
 
