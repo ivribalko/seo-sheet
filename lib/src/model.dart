@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
-import 'package:google_place/google_place.dart';
 import 'package:gsheets/gsheets.dart';
 import 'package:http/http.dart' as http;
 
@@ -19,7 +18,6 @@ class Listing {
 class Model extends GetxController with Log {
   final data = <String>[].obs;
   final _sheet = Get.find<GSheets>();
-  final _place = Get.find<GooglePlace>();
   final _regex = RegExp(r'(\d*) reviews');
   final _onlyNumbers = RegExp(r'[^0-9]');
 
@@ -70,29 +68,6 @@ class Model extends GetxController with Log {
         'http://www.${split[4].trim()}',
         'tel:+1${split[3].trim().replaceAll(_onlyNumbers, '')}',
       ),
-    );
-  }
-
-  FutureOr<DetailsResponse?> toDetails(String value) async {
-    return await _place.details.get(
-      value,
-      fields: 'user_ratings_total',
-    );
-  }
-
-  FutureOr<Iterable<String>> toData(Iterable<DetailsResponse?> value) {
-    return value.map((e) => e!.result!.userRatingsTotal.toString());
-  }
-
-  FutureOr<String> toPlaceId(FindPlaceResponse? value) {
-    // assert(value!.candidates!.length == 1);
-    return value!.candidates![0].placeId!;
-  }
-
-  FutureOr<FindPlaceResponse?> getPlaces(String value) async {
-    return await _place.search.getFindPlace(
-      value,
-      InputType.TextQuery,
     );
   }
 }

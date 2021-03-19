@@ -10,7 +10,6 @@ dependencies:
   flutter:
     sdk: flutter
   get: ^4.0.0-nullsafety.2
-  google_place: ^0.4.0
   gsheets: 0.3.0-nullsafety.0
   html: ^0.15.0
   http: ^0.13.0

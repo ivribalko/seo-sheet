@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:get/get.dart';
-import 'package:google_place/google_place.dart';
 import 'package:gsheets/gsheets.dart';
 import 'package:logging/logging.dart';
 
@@ -14,7 +13,6 @@ class IoC {
   static Future init() async {
     _initLog();
 
-    Get.put(GooglePlace(await rootBundle.loadString('assets/maps-key.txt')));
     Get.put(GSheets(await rootBundle.loadString('assets/account-key.json')));
     Get.put(Model());
   }
