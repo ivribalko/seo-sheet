@@ -10,8 +10,9 @@ import 'common.dart';
 class Listing {
   final String url;
   final String name;
+  final String phone;
 
-  Listing(this.url, this.name);
+  Listing(this.url, this.name, this.phone);
 }
 
 class Model extends GetxController with Log {
@@ -19,6 +20,7 @@ class Model extends GetxController with Log {
   final _sheet = Get.find<GSheets>();
   final _place = Get.find<GooglePlace>();
   final _regex = RegExp(r'(\d*) reviews');
+  final _onlyNumbers = RegExp(r'[^0-9]');
 
   @override
   void onInit() async {
@@ -31,27 +33,35 @@ class Model extends GetxController with Log {
           final urls = await value?.values.column(2);
           return data!
               .asMap()
-              .map((key, value) => MapEntry(
-                    key,
-                    Listing(urls![key], value.split('\n')[0].trim()),
-                  ))
+              .map((key, value) => toListing(value, key, urls!))
               .values;
         })
         .then((value) => value.map((e) {
               final name = e.name;
-              final url = e.url;
-              return Future.value(url)
+              final phone = e.phone;
+              return Future.value(e.url)
                   .then(Uri.parse)
                   .then(http.get)
                   .then((value) => value.body)
-                  .then((value) {
-                return '$name\n'
-                    'name:${value.contains('$name" itemprop="name"')}\n'
-                    'reviews:${_regex.firstMatch(value)![1]!}';
-              });
+                  .then((value) => '$name\n'
+                      'name:${value.contains('$name" itemprop="name"')}\n'
+                      'phone:${value.contains(phone)}\n'
+                      'reviews:${_regex.firstMatch(value)![1]!}');
             }))
         .then((value) async => await Future.wait(value))
         .then(data.addAll);
+  }
+
+  MapEntry<int, Listing> toListing(String value, int key, List<String> urls) {
+    final split = value.split('\n');
+    return MapEntry(
+      key,
+      Listing(
+        urls[key],
+        split[0].trim(),
+        'tel:+1${split[3].trim().replaceAll(_onlyNumbers, '')}',
+      ),
+    );
   }
 
   FutureOr<DetailsResponse?> toDetails(String value) async {
