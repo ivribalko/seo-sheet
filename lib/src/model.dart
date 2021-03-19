@@ -10,9 +10,10 @@ import 'common.dart';
 class Listing {
   final String url;
   final String name;
+  final String site;
   final String phone;
 
-  Listing(this.url, this.name, this.phone);
+  Listing(this.url, this.name, this.site, this.phone);
 }
 
 class Model extends GetxController with Log {
@@ -28,28 +29,35 @@ class Model extends GetxController with Log {
     await _sheet
         .spreadsheet('105boKm8hweT3QIErlXx6PBLOQoaNkGKpM8sKwClpcBY')
         .then((value) => value.worksheetByTitle('Лист1'))
-        .then((value) async {
-          final data = await value?.values.column(1);
-          final urls = await value?.values.column(2);
-          return data!
-              .asMap()
-              .map((key, value) => toListing(value, key, urls!))
-              .values;
-        })
-        .then((value) => value.map((e) {
-              final name = e.name;
-              final phone = e.phone;
-              return Future.value(e.url)
-                  .then(Uri.parse)
-                  .then(http.get)
-                  .then((value) => value.body)
-                  .then((value) => '$name\n'
-                      'name:${value.contains('$name" itemprop="name"')}\n'
-                      'phone:${value.contains(phone)}\n'
-                      'reviews:${_regex.firstMatch(value)![1]!}');
-            }))
+        .then(toListings)
+        .then(toResult)
         .then((value) async => await Future.wait(value))
         .then(data.addAll);
+  }
+
+  FutureOr<Iterable<Listing>> toListings(Worksheet? value) async {
+    final data = await value?.values.column(1);
+    final urls = await value?.values.column(2);
+    return data!
+        .asMap()
+        .map((key, value) => toListing(value, key, urls!))
+        .values;
+  }
+
+  FutureOr<Iterable<Future<String>>> toResult(Iterable<Listing> value) {
+    return value.map((e) {
+      final name = e.name;
+      final phone = e.phone;
+      return Future.value(e.url)
+          .then(Uri.parse)
+          .then(http.get)
+          .then((value) => value.body)
+          .then((value) => '$name\n'
+              'name:${value.contains('$name" itemprop="name"')}\n'
+              'site:${value.contains(e.site) || value.contains(e.site.replaceAll('www.', ''))}\n'
+              'phone:${value.contains(phone)}\n'
+              'reviews:${_regex.firstMatch(value)![1]!}');
+    });
   }
 
   MapEntry<int, Listing> toListing(String value, int key, List<String> urls) {
@@ -59,6 +67,7 @@ class Model extends GetxController with Log {
       Listing(
         urls[key],
         split[0].trim(),
+        'http://www.${split[4].trim()}',
         'tel:+1${split[3].trim().replaceAll(_onlyNumbers, '')}',
       ),
     );
