@@ -7,6 +7,13 @@ import 'package:http/http.dart' as http;
 
 import 'common.dart';
 
+class Listing {
+  final String url;
+  final String name;
+
+  Listing(this.url, this.name);
+}
+
 class Model extends GetxController with Log {
   final data = <String>[].obs;
   final _sheet = Get.find<GSheets>();
@@ -19,12 +26,30 @@ class Model extends GetxController with Log {
     await _sheet
         .spreadsheet('105boKm8hweT3QIErlXx6PBLOQoaNkGKpM8sKwClpcBY')
         .then((value) => value.worksheetByTitle('Лист1'))
-        .then((value) async => await value?.values.column(2))
-        .then((value) => value!.map((e) => Future.value(e)
-            .then(Uri.parse)
-            .then(http.get)
-            .then((value) => value.body)
-            .then((value) => _regex.firstMatch(value)![1]!)))
+        .then((value) async {
+          final data = await value?.values.column(1);
+          final urls = await value?.values.column(2);
+          return data!
+              .asMap()
+              .map((key, value) => MapEntry(
+                    key,
+                    Listing(urls![key], value.split('\n')[0].trim()),
+                  ))
+              .values;
+        })
+        .then((value) => value.map((e) {
+              final name = e.name;
+              final url = e.url;
+              return Future.value(url)
+                  .then(Uri.parse)
+                  .then(http.get)
+                  .then((value) => value.body)
+                  .then((value) {
+                return '$name\n'
+                    'name:${value.contains('$name" itemprop="name"')}\n'
+                    'reviews:${_regex.firstMatch(value)![1]!}';
+              });
+            }))
         .then((value) async => await Future.wait(value))
         .then(data.addAll);
   }
