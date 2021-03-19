@@ -15,8 +15,8 @@ class Model extends GetxController with Log {
   void onInit() async {
     super.onInit();
     await _sheet
-        .spreadsheet('1_9FqFUwSYWLhLF-VEXJYMgD2CB8z0gKbP8BC8nHXa4Y')
-        .then((value) => value.worksheetByTitle('Sheet1'))
+        .spreadsheet('105boKm8hweT3QIErlXx6PBLOQoaNkGKpM8sKwClpcBY')
+        .then((value) => value.worksheetByTitle('Лист1'))
         .then((value) async => await value?.values.column(1))
         .then((value) => value!.map((e) => Future.value(e)
             .then((value) => Uri.parse(value).pathSegments[2])
