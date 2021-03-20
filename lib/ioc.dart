@@ -13,7 +13,7 @@ class IoC {
   static Future init() async {
     _initLog();
 
-    Get.put<String>(
+    Get.put(
       await rootBundle.loadString('assets/account-key.json'),
       tag: 'account-key',
     );
