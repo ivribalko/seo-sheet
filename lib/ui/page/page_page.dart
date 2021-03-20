@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/src/common.dart';
 import 'package:flutter_app/src/model.dart';
 import 'package:get/get.dart';
 
@@ -14,15 +13,16 @@ class PagePage extends StatelessWidget {
         return SafeArea(
           child: ListView(
             children: model.data.map(toTile).toList(),
-          ).paddingAll(kPadding),
+          ),
         );
       }),
     );
   }
 
-  ListTile toTile(url) {
+  Widget toTile(Verified data) {
     return ListTile(
-      title: Text(url),
-    );
+      title: Text(data.text),
+      tileColor: data.failed ? Colors.yellow : Colors.transparent,
+    ).paddingAll(10);
   }
 }

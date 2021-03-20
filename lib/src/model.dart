@@ -15,8 +15,15 @@ class Listing {
   Listing(this.url, this.name, this.site, this.phone);
 }
 
+class Verified {
+  final bool failed;
+  final String text;
+
+  Verified(this.failed, this.text);
+}
+
 class Model extends GetxController with Log {
-  final data = <String>[].obs;
+  final data = <Verified>[].obs;
   final _sheet = Get.find<GSheets>();
   final _regex = RegExp(r'(\d*) reviews');
   final _onlyNumbers = RegExp(r'[^0-9]');
@@ -43,20 +50,24 @@ class Model extends GetxController with Log {
         .values;
   }
 
-  FutureOr<Iterable<Future<String>>> toResult(Iterable<Listing> value) {
-    return value.map((e) {
-      final name = e.name;
-      final phone = e.phone;
-      return Future.value(e.url)
+  FutureOr<Iterable<Future<Verified>>> toResult(Iterable<Listing> value) {
+    return value.map((listing) {
+      return Future.value(listing.url)
           .then(Uri.parse)
           .then(http.get)
           .then((value) => value.body)
-          .then((value) => '$name\n'
-              'name:${value.contains('$name" itemprop="name"')}\n'
-              'site:${value.contains(e.site) || value.contains(e.site.replaceAll('www.', ''))}\n'
-              'phone:${value.contains(phone)}\n'
-              'reviews:${_regex.firstMatch(value)![1]!}');
+          .then((value) => toVerified(value, listing));
     });
+  }
+
+  Verified toVerified(String value, Listing listing) {
+    final text = '${listing.name}\n'
+        '${value.contains('${listing.name}" itemprop="name"') ? '' : 'name\n'}'
+        '${value.contains(listing.site) || value.contains(listing.site.replaceAll('www.', '')) ? '' : 'site\n'}'
+        '${value.contains(listing.phone) ? '' : 'phone\n'}'
+        'reviews:${_regex.firstMatch(value)![1]!}';
+
+    return Verified('\n'.allMatches(text).length > 1, text);
   }
 
   MapEntry<int, Listing> toListing(String value, int key, List<String> urls) {
