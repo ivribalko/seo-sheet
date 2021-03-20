@@ -20,12 +20,13 @@ class Model extends GetxController with Log {
   final _sheet = Get.find<GSheets>();
   final _regex = RegExp(r'(\d*) reviews');
   final _onlyNumbers = RegExp(r'[^0-9]');
+  final _sheetId = Get.arguments;
 
   @override
   void onInit() async {
     super.onInit();
     await _sheet
-        .spreadsheet('105boKm8hweT3QIErlXx6PBLOQoaNkGKpM8sKwClpcBY')
+        .spreadsheet(_sheetId)
         .then((value) => value.worksheetByTitle('Лист1'))
         .then(toListings)
         .then(toResult)
