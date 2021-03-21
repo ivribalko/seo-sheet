@@ -67,7 +67,7 @@ class Model extends GetxController with Log {
           .then(http.get)
           .then((value) => value.body)
           .then((value) => toVerified(value, listing))
-          .catchError((e) => Verified(true, '$_failed: $e', e.index));
+          .catchError((e) => Verified(true, '$_failed: $e', -1));
     });
   }
 
