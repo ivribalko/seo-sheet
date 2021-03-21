@@ -16,8 +16,13 @@ class Params {
   final int listingColumn;
   final int commentColumn;
 
-  Params(this.worksheet, this.sheet, this.urlColumn, this.listingColumn,
-      this.commentColumn);
+  Params(
+    this.worksheet,
+    this.sheet,
+    this.urlColumn,
+    this.listingColumn,
+    this.commentColumn,
+  );
 }
 
 class Listing {
