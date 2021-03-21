@@ -58,13 +58,13 @@ class Model extends GetxController with Log {
   }
 
   Verified toVerified(String value, Listing listing) {
-    value = value.toLowerCase();
+    final lower = value.toLowerCase();
 
     final text = '${listing.name}\n'
-        '${value.contains('${listing.name.toLowerCase()}" itemprop="name"') ? '' : 'name $_failed\n'}'
-        '${value.contains(listing.site) || value.contains(listing.site.replaceAll('www.', '')) ? '' : 'site $_failed\n'}'
-        '${value.contains(listing.phone) ? '' : 'phone $_failed\n'}'
-        'reviews ${_regex.firstMatch(value)?[1] ?? _failed}';
+        '${lower.contains('${listing.name.toLowerCase()}" itemprop="name"') ? '' : 'name $_failed\n'}'
+        '${lower.contains(listing.site) || lower.contains(listing.site.replaceAll('www.', '')) ? '' : 'site $_failed\n'}'
+        '${lower.contains(listing.phone) ? '' : 'phone $_failed\n'}'
+        'reviews ${_regex.firstMatch(lower)?[1] ?? _failed}';
 
     return Verified(text.contains(_failed), text);
   }
