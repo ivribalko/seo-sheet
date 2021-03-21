@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/src/model.dart';
+import 'package:flutter_app/ui/common.dart';
 import 'package:get/get.dart';
 
 class PagePage extends StatelessWidget {
@@ -9,13 +10,14 @@ class PagePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
-      body: Obx(() {
-        return SafeArea(
-          child: ListView(
-            children: model.data.map(toTile).toList(),
+      body: SafeArea(
+        child: CommonFutureBuilder<List<Verified>>(
+          future: model.data(),
+          result: (result) => ListView(
+            children: result!.map(toTile).toList(),
           ),
-        );
-      }),
+        ),
+      ),
     );
   }
 

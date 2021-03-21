@@ -25,23 +25,17 @@ class Verified {
 }
 
 class Model extends GetxController with Log {
-  final data = <Verified>[].obs;
   final _sheet = Get.find<GSheets>();
   final _regex = RegExp(r'(\d*) reviews');
   final _onlyNumbers = RegExp(r'[^0-9]');
   final _sheetId = Get.arguments;
 
-  @override
-  void onInit() async {
-    super.onInit();
-    await _sheet
-        .spreadsheet(_sheetId)
-        .then((value) => value.worksheetByTitle('Лист1'))
-        .then(toListings)
-        .then(toResult)
-        .then((value) async => await Future.wait(value))
-        .then(data.addAll);
-  }
+  Future<List<Verified>> data() => _sheet
+      .spreadsheet(_sheetId)
+      .then((value) => value.worksheetByTitle('Лист1'))
+      .then(toListings)
+      .then(toResult)
+      .then((value) async => await Future.wait(value));
 
   FutureOr<Iterable<Listing>> toListings(Worksheet? value) async {
     final data = await value?.values.column(1);
