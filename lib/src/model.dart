@@ -77,7 +77,7 @@ class Model extends GetxController with Log {
         urls[key],
         split[0].trim(),
         split.length == 5
-            ? 'http://www.${split[4].trim().toLowerCase()}'
+            ? 'http://www.${split[4].trim().toLowerCase().replaceFirst('http://', '').replaceFirst('www.', '')}'
             : _failed,
         split.length == 5
             ? 'tel:+1${split[3].trim().replaceAll(_onlyNumbers, '')}'
