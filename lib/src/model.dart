@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import "package:collection/collection.dart";
 import 'package:get/get.dart';
 import 'package:gsheets/gsheets.dart';
 import 'package:http/http.dart' as http;
@@ -35,7 +36,7 @@ class Model extends GetxController with Log {
           .spreadsheet(worksheet)
           .then((value) => value.worksheetByTitle(sheet))
           .then(toListings)
-          .then(toResult)
+          .then(toResultData)
           .then((value) async => await Future.wait(value));
 
   Future<List<Verified>> verifyDupe(String worksheet, String sheet) =>
@@ -43,8 +44,7 @@ class Model extends GetxController with Log {
           .spreadsheet(worksheet)
           .then((value) => value.worksheetByTitle(sheet))
           .then(toListings)
-          .then(toResult)
-          .then((value) async => await Future.wait(value));
+          .then(toResultDupe);
 
   FutureOr<Iterable<Listing>> toListings(Worksheet? value) async {
     final data = await value?.values.column(1);
@@ -55,7 +55,7 @@ class Model extends GetxController with Log {
         .values;
   }
 
-  FutureOr<Iterable<Future<Verified>>> toResult(Iterable<Listing> value) {
+  FutureOr<Iterable<Future<Verified>>> toResultData(Iterable<Listing> value) {
     return value.map((listing) {
       return Future.value(listing.url)
           .then(Uri.parse)
@@ -64,6 +64,16 @@ class Model extends GetxController with Log {
           .then((value) => toVerified(value, listing))
           .catchError((e) => Verified(true, '$_failed: $e'));
     });
+  }
+
+  FutureOr<List<Verified>> toResultDupe(Iterable<Listing> list) {
+    return list
+        .groupListsBy((e) => e.phone)
+        .entries
+        .where((e) => e.value.length > 1)
+        .map((e) => e.value)
+        .map((e) => Verified(true, '$_failed ${e[0].phone}'))
+        .toList();
   }
 
   Verified toVerified(String value, Listing listing) {
