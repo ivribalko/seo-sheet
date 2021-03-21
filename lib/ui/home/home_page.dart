@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/src/common.dart';
-import 'package:flutter_app/ui/routes.dart';
 import 'package:get/get.dart';
+import 'package:seosheet/src/common.dart';
+import 'package:seosheet/ui/routes.dart';
 
 class HomePage extends StatelessWidget {
   final input = TextEditingController();

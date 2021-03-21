@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/src/model.dart';
-import 'package:flutter_app/ui/common.dart';
 import 'package:get/get.dart';
+import 'package:seosheet/src/model.dart';
+import 'package:seosheet/ui/common.dart';
 
 class PagePage extends StatelessWidget {
   final model = Get.find<Model>();
