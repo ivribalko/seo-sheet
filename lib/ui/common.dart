@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 const Duration kDuration = Duration(milliseconds: 400);
+const double kPadding = 20.0;
+const double kBetween = 10.0;
 
 class CommonFutureBuilder<T> extends StatelessWidget {
   const CommonFutureBuilder({
@@ -60,6 +62,20 @@ extension Padded on Widget {
     return Padding(
       padding: EdgeInsets.fromLTRB(x, y, x, y),
       child: this,
+    );
+  }
+}
+
+extension WidgetListExtension on List<Widget> {
+  List<Widget> paddingBetween({double by = kBetween}) {
+    return List.generate(
+      length * 2 - 1,
+      (index) => index % 2 == 1
+          ? SizedBox(
+              height: by,
+              width: by,
+            )
+          : this[(index / 2).round()],
     );
   }
 }

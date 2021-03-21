@@ -30,9 +30,9 @@ class Model extends GetxController with Log {
   final _regexReview = RegExp(r'(\d*) reviews');
   final _onlyNumbers = RegExp(r'[^0-9]');
 
-  Future<List<Verified>> data(String id) => _googleSheet
-      .spreadsheet(id)
-      .then((value) => value.worksheetByTitle('Лист1'))
+  Future<List<Verified>> data(String worksheet, String sheet) => _googleSheet
+      .spreadsheet(worksheet)
+      .then((value) => value.worksheetByTitle(sheet))
       .then(toListings)
       .then(toResult)
       .then((value) async => await Future.wait(value));
