@@ -6,6 +6,8 @@ import 'package:http/http.dart' as http;
 
 import 'common.dart';
 
+const _failed = 'failed';
+
 class Listing {
   final String url;
   final String name;
@@ -62,12 +64,12 @@ class Model extends GetxController with Log {
 
   Verified toVerified(String value, Listing listing) {
     final text = '${listing.name}\n'
-        '${value.contains('${listing.name}" itemprop="name"') ? '' : 'name\n'}'
-        '${value.contains(listing.site) || value.contains(listing.site.replaceAll('www.', '')) ? '' : 'site\n'}'
-        '${value.contains(listing.phone) ? '' : 'phone\n'}'
-        'reviews:${_regex.firstMatch(value)![1]!}';
+        '${value.contains('${listing.name}" itemprop="name"') ? '' : 'name $_failed\n'}'
+        '${value.contains(listing.site) || value.contains(listing.site.replaceAll('www.', '')) ? '' : 'site $_failed\n'}'
+        '${value.contains(listing.phone) ? '' : 'phone $_failed\n'}'
+        'reviews:${_regex.firstMatch(value)?[1] ?? _failed}';
 
-    return Verified('\n'.allMatches(text).length > 1, text);
+    return Verified(text.contains(_failed), text);
   }
 
   MapEntry<int, Listing> toListing(String value, int key, List<String> urls) {
