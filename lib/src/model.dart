@@ -52,7 +52,8 @@ class Model extends GetxController with Log {
           .then(Uri.parse)
           .then(http.get)
           .then((value) => value.body)
-          .then((value) => toVerified(value, listing));
+          .then((value) => toVerified(value, listing))
+          .catchError((_) => Verified(true, '$_failed'));
     });
   }
 
@@ -73,8 +74,10 @@ class Model extends GetxController with Log {
       Listing(
         urls[key],
         split[0].trim(),
-        'http://www.${split[4].trim()}',
-        'tel:+1${split[3].trim().replaceAll(_onlyNumbers, '')}',
+        split.length == 5 ? 'http://www.${split[4].trim()}' : _failed,
+        split.length == 5
+            ? 'tel:+1${split[3].trim().replaceAll(_onlyNumbers, '')}'
+            : _failed,
       ),
     );
   }
