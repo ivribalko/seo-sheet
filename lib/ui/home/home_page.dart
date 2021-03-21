@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:seosheet/src/model.dart';
 import 'package:seosheet/ui/common.dart';
 import 'package:seosheet/ui/routes.dart';
 
@@ -40,26 +41,30 @@ class HomePage extends StatelessWidget {
             ElevatedButton(
               onPressed: () => Get.toNamed(
                 Routes.page,
-                arguments: [
-                  inputWorksheet.text,
-                  inputSheet.text,
-                ],
+                arguments: params,
               ),
               child: Text('Verify'),
             ),
             ElevatedButton(
               onPressed: () => Get.toNamed(
                 Routes.dupe,
-                arguments: [
-                  inputWorksheet.text,
-                  inputSheet.text,
-                ],
+                arguments: params,
               ),
               child: Text('Dupes'),
             ),
           ].paddingBetween(),
         ).paddingAll(kPadding),
       ),
+    );
+  }
+
+  Params get params {
+    return Params(
+      inputWorksheet.text,
+      inputSheet.text,
+      int.parse(inputUrlColumn.text),
+      int.parse(inputListingColumn.text),
+      int.parse(inputCommentColumn.text),
     );
   }
 }

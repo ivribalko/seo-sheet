@@ -12,10 +12,7 @@ class PagePage extends StatelessWidget {
       appBar: AppBar(),
       body: SafeArea(
         child: CommonFutureBuilder<List<Verified>>(
-          future: model.verifyData(
-            Get.arguments[0],
-            Get.arguments[1],
-          ),
+          future: model.verifyData(Get.arguments),
           result: (result) {
             return Scrollbar(
               child: ListView(

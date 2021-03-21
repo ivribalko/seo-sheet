@@ -9,6 +9,17 @@ import 'common.dart';
 
 const _failed = 'failed';
 
+class Params {
+  final String worksheet;
+  final String sheet;
+  final int urlColumn;
+  final int listingColumn;
+  final int commentColumn;
+
+  Params(this.worksheet, this.sheet, this.urlColumn, this.listingColumn,
+      this.commentColumn);
+}
+
 class Listing {
   final String url;
   final String name;
@@ -33,24 +44,25 @@ class Model extends GetxController with Log {
   final _regexReview = RegExp(r'(\d*) reviews');
   final _onlyNumbers = RegExp(r'[^0-9]');
 
-  Future<List<Verified>> verifyData(String worksheet, String sheet) =>
-      _googleSheet
-          .spreadsheet(worksheet)
-          .then((value) => value.worksheetByTitle(sheet))
-          .then(toListings)
-          .then(toResultData)
-          .then((value) async => await Future.wait(value));
+  Future<List<Verified>> verifyData(Params params) => _googleSheet
+      .spreadsheet(params.worksheet)
+      .then((value) => value.worksheetByTitle(params.sheet))
+      .then((value) => toListings(value, params))
+      .then(toResultData)
+      .then((value) async => await Future.wait(value));
 
-  Future<List<Verified>> verifyDupe(String worksheet, String sheet) =>
-      _googleSheet
-          .spreadsheet(worksheet)
-          .then((value) => value.worksheetByTitle(sheet))
-          .then(toListings)
-          .then(toResultDupe);
+  Future<List<Verified>> verifyDupe(Params params) => _googleSheet
+      .spreadsheet(params.worksheet)
+      .then((value) => value.worksheetByTitle(params.sheet))
+      .then((value) => toListings(value, params))
+      .then(toResultDupe);
 
-  FutureOr<Iterable<Listing>> toListings(Worksheet? value) async {
-    final data = await value?.values.column(1);
-    final urls = await value?.values.column(2);
+  FutureOr<Iterable<Listing>> toListings(
+    Worksheet? value,
+    Params params,
+  ) async {
+    final data = await value?.values.column(params.listingColumn);
+    final urls = await value?.values.column(params.urlColumn);
     return data!
         // there can be fewer urls
         .take(urls!.length)
