@@ -12,7 +12,10 @@ class DupePage extends StatelessWidget {
       appBar: AppBar(),
       body: SafeArea(
         child: CommonFutureBuilder<List<Verified>>(
-          future: model.data(Get.arguments[0], Get.arguments[1]),
+          future: model.verifyDupe(
+            Get.arguments[0],
+            Get.arguments[1],
+          ),
           result: (result) {
             return Scrollbar(
               child: ListView(
