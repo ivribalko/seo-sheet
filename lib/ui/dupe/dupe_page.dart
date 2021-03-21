@@ -15,6 +15,7 @@ class DupePage extends StatelessWidget {
           future: model.verifyDupe(Get.arguments),
           result: (result) {
             return Scrollbar(
+              interactive: true,
               child: ListView(
                 children: result!.map(toTile).toList(),
               ),

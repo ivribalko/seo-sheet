@@ -15,6 +15,7 @@ class PagePage extends StatelessWidget {
           future: model.verifyData(Get.arguments),
           result: (result) {
             return Scrollbar(
+              interactive: true,
               child: ListView(
                 children: result!.map(toTile).toList(),
               ),
