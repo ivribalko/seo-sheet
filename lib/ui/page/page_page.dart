@@ -13,9 +13,13 @@ class PagePage extends StatelessWidget {
       body: SafeArea(
         child: CommonFutureBuilder<List<Verified>>(
           future: model.data(),
-          result: (result) => ListView(
-            children: result!.map(toTile).toList(),
-          ),
+          result: (result) {
+            return Scrollbar(
+              child: ListView(
+                children: result!.map(toTile).toList(),
+              ),
+            );
+          },
         ),
       ),
     );

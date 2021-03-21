@@ -58,8 +58,10 @@ class Model extends GetxController with Log {
   }
 
   Verified toVerified(String value, Listing listing) {
+    value = value.toLowerCase();
+
     final text = '${listing.name}\n'
-        '${value.contains('${listing.name}" itemprop="name"') ? '' : 'name $_failed\n'}'
+        '${value.contains('${listing.name.toLowerCase()}" itemprop="name"') ? '' : 'name $_failed\n'}'
         '${value.contains(listing.site) || value.contains(listing.site.replaceAll('www.', '')) ? '' : 'site $_failed\n'}'
         '${value.contains(listing.phone) ? '' : 'phone $_failed\n'}'
         'reviews:${_regex.firstMatch(value)?[1] ?? _failed}';
@@ -74,7 +76,9 @@ class Model extends GetxController with Log {
       Listing(
         urls[key],
         split[0].trim(),
-        split.length == 5 ? 'http://www.${split[4].trim()}' : _failed,
+        split.length == 5
+            ? 'http://www.${split[4].trim().toLowerCase()}'
+            : _failed,
         split.length == 5
             ? 'tel:+1${split[3].trim().replaceAll(_onlyNumbers, '')}'
             : _failed,
