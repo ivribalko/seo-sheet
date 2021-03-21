@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:gsheets/gsheets.dart';
 import 'package:http/http.dart' as http;
@@ -14,15 +15,17 @@ class Listing {
   final String site;
   final String phone;
   final String image;
+  final int index;
 
-  Listing(this.url, this.name, this.site, this.phone, this.image);
+  Listing(this.url, this.name, this.site, this.phone, this.image, this.index);
 }
 
 class Verified {
   final bool failed;
   final String text;
+  final int index;
 
-  Verified(this.failed, this.text);
+  Verified(this.failed, this.text, this.index);
 }
 
 class Model extends GetxController with Log {
@@ -30,31 +33,79 @@ class Model extends GetxController with Log {
   final _regexReview = RegExp(r'(\d*) reviews');
   final _onlyNumbers = RegExp(r'[^0-9]');
 
-  Future<List<Verified>> data(String worksheet, String sheet) => _googleSheet
-      .spreadsheet(worksheet)
-      .then((value) => value.worksheetByTitle(sheet))
-      .then(toListings)
-      .then(toResult)
-      .then((value) async => await Future.wait(value));
+  Future<List<Verified>> verifyData(String worksheet, String sheet) =>
+      _googleSheet
+          .spreadsheet(worksheet)
+          .then((value) => value.worksheetByTitle(sheet))
+          .then(toListings)
+          .then(toResultData)
+          .then((value) async => await Future.wait(value));
+
+  Future<List<Verified>> verifyDupe(String worksheet, String sheet) =>
+      _googleSheet
+          .spreadsheet(worksheet)
+          .then((value) => value.worksheetByTitle(sheet))
+          .then(toListings)
+          .then(toResultDupe);
 
   FutureOr<Iterable<Listing>> toListings(Worksheet? value) async {
     final data = await value?.values.column(1);
     final urls = await value?.values.column(2);
     return data!
+        // there can be fewer urls
+        .take(urls!.length)
+        .toList()
         .asMap()
         .map((key, value) => toListing(value, key, urls!))
         .values;
   }
 
-  FutureOr<Iterable<Future<Verified>>> toResult(Iterable<Listing> value) {
+  FutureOr<Iterable<Future<Verified>>> toResultData(Iterable<Listing> value) {
     return value.map((listing) {
       return Future.value(listing.url)
           .then(Uri.parse)
           .then(http.get)
           .then((value) => value.body)
           .then((value) => toVerified(value, listing))
-          .catchError((e) => Verified(true, '$_failed: $e'));
+          .catchError((e) => Verified(true, '$_failed: $e', -1));
     });
+  }
+
+  FutureOr<List<Verified>> toResultDupe(Iterable<Listing> list) {
+    return list
+        .groupListsBy((e) => e.phone)
+        .entries
+        .where((e) => e.value.length > 1)
+        .map((e) => e.value)
+        .map(
+          (e) => Verified(
+            true,
+            '$_failed ${e[0].phone}\nrows ${e.map((e) => e.index + 1).join(', ')}',
+            -1,
+          ),
+        )
+        .toList()
+          ..addAll(
+            list
+                .map(
+                  (e) => Verified(
+                    true,
+                    '${e.name} ${e.phone} ${e.site}',
+                    e.index,
+                  ),
+                )
+                .groupListsBy((e) => e.text)
+                .entries
+                .where((e) => e.value.length > 1)
+                .map((e) => e.value)
+                .map(
+                  (e) => Verified(
+                    true,
+                    '$_failed ${e[0].text}\nrows ${e.map((e) => e.index + 1).join(', ')}',
+                    -1,
+                  ),
+                ),
+          );
   }
 
   Verified toVerified(String value, Listing listing) {
@@ -67,7 +118,7 @@ class Model extends GetxController with Log {
         '${lower.contains(listing.image) ? '' : 'image $_failed\n'}'
         'reviews ${_regexReview.firstMatch(lower)?[1] ?? _failed}';
 
-    return Verified(text.contains(_failed), text);
+    return Verified(text.contains(_failed), text, listing.index);
   }
 
   MapEntry<int, Listing> toListing(String value, int key, List<String> urls) {
@@ -84,6 +135,7 @@ class Model extends GetxController with Log {
             ? 'tel:+1${split[3].trim().replaceAll(_onlyNumbers, '')}'
             : _failed,
         'lh5.googleusercontent.com',
+        key,
       ),
     );
   }

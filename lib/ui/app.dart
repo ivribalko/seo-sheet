@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:seosheet/ioc.dart';
 
+import 'dupe/dupe_page.dart';
 import 'home/home_page.dart';
 import 'page/page_page.dart';
 import 'routes.dart';
@@ -14,6 +15,7 @@ class App extends StatelessWidget {
       getPages: [
         GetPage(name: Routes.home, page: () => HomePage()),
         GetPage(name: Routes.page, page: () => PagePage(), binding: PageBind()),
+        GetPage(name: Routes.dupe, page: () => DupePage(), binding: PageBind()),
       ],
     );
   }

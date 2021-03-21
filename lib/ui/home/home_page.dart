@@ -36,7 +36,17 @@ class HomePage extends StatelessWidget {
                   inputSheet.text,
                 ],
               ),
-              child: Text('Check'),
+              child: Text('Verify'),
+            ),
+            ElevatedButton(
+              onPressed: () => Get.toNamed(
+                Routes.dupe,
+                arguments: [
+                  inputWorksheet.text,
+                  inputSheet.text,
+                ],
+              ),
+              child: Text('Dupes'),
             ),
           ].paddingBetween(),
         ).paddingAll(kPadding),

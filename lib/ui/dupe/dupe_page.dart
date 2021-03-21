@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:seosheet/src/model.dart';
 import 'package:seosheet/ui/common.dart';
 
-class PagePage extends StatelessWidget {
+class DupePage extends StatelessWidget {
   final model = Get.find<Model>();
 
   @override
@@ -12,7 +12,7 @@ class PagePage extends StatelessWidget {
       appBar: AppBar(),
       body: SafeArea(
         child: CommonFutureBuilder<List<Verified>>(
-          future: model.verifyData(
+          future: model.verifyDupe(
             Get.arguments[0],
             Get.arguments[1],
           ),
