@@ -16,7 +16,7 @@ class PagePage extends StatelessWidget {
           result: (result) {
             return Scrollbar(
               child: ListView(
-                children: result!.map(toTile).toList(),
+                children: result!.asMap().entries.map(toTile).toList(),
               ),
             );
           },
@@ -25,10 +25,11 @@ class PagePage extends StatelessWidget {
     );
   }
 
-  Widget toTile(Verified data) {
+  Widget toTile(MapEntry<int, Verified> data) {
     return ListTile(
-      title: Text(data.text),
-      tileColor: data.failed ? Colors.yellow : Colors.transparent,
+      title: Text(data.value.text),
+      leading: Text('#${data.key + 1}'),
+      tileColor: data.value.failed ? Colors.yellow : Colors.transparent,
     ).paddingAll(10);
   }
 }
