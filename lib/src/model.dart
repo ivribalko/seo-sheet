@@ -97,15 +97,20 @@ class Model extends GetxController with Log {
   Verified toVerified(String value, Listing listing) {
     final lower = value.toLowerCase();
 
+    final revs = int.parse(_regexReview.firstMatch(lower)?[1] ?? '-1');
+
     final text = '${listing.name}\n'
         '${lower.contains('${listing.name.toLowerCase()}" itemprop="name"') ? '' : 'name $_failed\n'}'
         '${lower.contains(listing.site) || lower.contains(listing.site.replaceAll('www.', '')) ? '' : 'site $_failed\n'}'
         '${lower.contains(listing.phone) ? '' : 'phone $_failed\n'}'
         '${lower.contains(listing.image) ? '' : 'image $_failed\n'}'
-        '${lower.contains(listing.image) ? '' : 'reviews $_failed\n'}'
-        'reviews ${_regexReview.firstMatch(lower)?[1] ?? _failed}';
+        'reviews ${listing.reviews} -> $revs';
 
-    final color = text.contains(_failed) ? Colors.yellow : Colors.transparent;
+    final color = revs < listing.reviews
+        ? Colors.red
+        : text.contains(_failed) || revs > listing.reviews
+            ? Colors.yellow
+            : Colors.transparent;
 
     return Verified(color, text, listing.index);
   }
@@ -131,7 +136,8 @@ class Model extends GetxController with Log {
             ? 'tel:+1${split[3].trim().replaceAll(_onlyNumbers, '')}'
             : _failed,
         'lh5.googleusercontent.com',
-        parse(revs[key]).evaluate(ex.EvaluationType.INTERVAL, model),
+        (parse(revs[key]).evaluate(ex.EvaluationType.REAL, model) as double)
+            .round(),
         key,
       ),
     );
