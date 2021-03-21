@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 import 'package:gsheets/gsheets.dart';
-import 'package:http/http.dart' as http;
+import 'package:puppeteer/puppeteer.dart';
 
 import 'common.dart';
 
@@ -46,15 +46,21 @@ class Model extends GetxController with Log {
         .values;
   }
 
-  FutureOr<Iterable<Future<Verified>>> toResult(Iterable<Listing> value) {
-    return value.map((listing) {
-      return Future.value(listing.url)
-          .then(Uri.parse)
-          .then(http.get)
-          .then((value) => value.body)
-          .then((value) => toVerified(value, listing))
-          .catchError((e) => Verified(true, '$_failed: $e'));
-    });
+  FutureOr<Iterable<Future<Verified>>> toResult(Iterable<Listing> value) async {
+    var browser = await puppeteer.launch();
+    var page = await browser.newPage();
+
+    await page.goto(value.first.url, wait: Until.networkIdle);
+
+    // Wait for suggest overlay to appear and click "show all results".
+    var allResultsSelector = '.section-review-text';
+    await page.waitForSelector(allResultsSelector);
+
+    print(await page.evaluate('() => document.title'));
+
+    await browser.close();
+
+    return Iterable.empty();
   }
 
   Verified toVerified(String value, Listing listing) {
