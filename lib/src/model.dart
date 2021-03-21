@@ -74,11 +74,35 @@ class Model extends GetxController with Log {
         .entries
         .where((e) => e.value.length > 1)
         .map((e) => e.value)
-        .map((e) => Verified(
+        .map(
+          (e) => Verified(
             true,
-            '$_failed ${e[0].phone}\nlines ${e.map((e) => e.index + 1).join(', ')}',
-            e[0].index))
-        .toList();
+            '$_failed ${e[0].phone}\nrows ${e.map((e) => e.index + 1).join(', ')}',
+            -1,
+          ),
+        )
+        .toList()
+          ..addAll(
+            list
+                .map(
+                  (e) => Verified(
+                    true,
+                    '${e.name} ${e.phone} ${e.site}',
+                    e.index,
+                  ),
+                )
+                .groupListsBy((e) => e.text)
+                .entries
+                .where((e) => e.value.length > 1)
+                .map((e) => e.value)
+                .map(
+                  (e) => Verified(
+                    true,
+                    '$_failed ${e[0].text}\nrows ${e.map((e) => e.index + 1).join(', ')}',
+                    -1,
+                  ),
+                ),
+          );
   }
 
   Verified toVerified(String value, Listing listing) {
