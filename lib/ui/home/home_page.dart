@@ -9,7 +9,7 @@ class HomePage extends StatelessWidget {
   final inputSheet = TextEditingController()..text = 'Sheet1';
   final inputUrlColumn = TextEditingController()..text = '5';
   final inputListingColumn = TextEditingController()..text = '4';
-  final inputCommentColumn = TextEditingController()..text = '7';
+  final inputReviewsColumn = TextEditingController()..text = '7';
 
   @override
   Widget build(BuildContext context) {
@@ -35,8 +35,8 @@ class HomePage extends StatelessWidget {
               label: 'Url',
             ),
             _TextField(
-              inputWorksheet: inputCommentColumn,
-              label: 'Comment',
+              inputWorksheet: inputReviewsColumn,
+              label: 'Reviews',
             ),
             ElevatedButton(
               onPressed: () => Get.toNamed(
@@ -64,7 +64,7 @@ class HomePage extends StatelessWidget {
       inputSheet.text,
       int.parse(inputUrlColumn.text),
       int.parse(inputListingColumn.text),
-      int.parse(inputCommentColumn.text),
+      int.parse(inputReviewsColumn.text),
     );
   }
 }
