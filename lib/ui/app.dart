@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/ioc.dart';
 import 'package:get/get.dart';
+import 'package:seosheet/ioc.dart';
 
 import 'home/home_page.dart';
 import 'page/page_page.dart';
