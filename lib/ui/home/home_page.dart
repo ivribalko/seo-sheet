@@ -6,6 +6,9 @@ import 'package:seosheet/ui/routes.dart';
 class HomePage extends StatelessWidget {
   final inputWorksheet = TextEditingController();
   final inputSheet = TextEditingController()..text = 'Sheet1';
+  final inputUrlColumn = TextEditingController()..text = '5';
+  final inputListingColumn = TextEditingController()..text = '4';
+  final inputCommentColumn = TextEditingController()..text = '7';
 
   @override
   Widget build(BuildContext context) {
@@ -14,19 +17,25 @@ class HomePage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            TextField(
-              controller: inputWorksheet,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Worksheet',
-              ),
+            _TextField(
+              inputWorksheet: inputWorksheet,
+              label: 'Worksheet',
             ),
-            TextField(
-              controller: inputSheet,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Sheet',
-              ),
+            _TextField(
+              inputWorksheet: inputSheet,
+              label: 'Sheet',
+            ),
+            _TextField(
+              inputWorksheet: inputListingColumn,
+              label: 'Listing',
+            ),
+            _TextField(
+              inputWorksheet: inputUrlColumn,
+              label: 'Url',
+            ),
+            _TextField(
+              inputWorksheet: inputCommentColumn,
+              label: 'Comment',
             ),
             ElevatedButton(
               onPressed: () => Get.toNamed(
@@ -50,6 +59,28 @@ class HomePage extends StatelessWidget {
             ),
           ].paddingBetween(),
         ).paddingAll(kPadding),
+      ),
+    );
+  }
+}
+
+class _TextField extends StatelessWidget {
+  const _TextField({
+    Key? key,
+    required this.inputWorksheet,
+    required this.label,
+  }) : super(key: key);
+
+  final TextEditingController inputWorksheet;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: inputWorksheet,
+      decoration: InputDecoration(
+        border: OutlineInputBorder(),
+        labelText: label,
       ),
     );
   }
