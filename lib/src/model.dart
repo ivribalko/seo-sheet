@@ -52,16 +52,19 @@ class Model extends GetxController with Log {
           .then(Uri.parse)
           .then(http.get)
           .then((value) => value.body)
-          .then((value) => toVerified(value, listing));
+          .then((value) => toVerified(value, listing))
+          .catchError((_) => Verified(true, '$_failed'));
     });
   }
 
   Verified toVerified(String value, Listing listing) {
+    final lower = value.toLowerCase();
+
     final text = '${listing.name}\n'
-        '${value.contains('${listing.name}" itemprop="name"') ? '' : 'name $_failed\n'}'
-        '${value.contains(listing.site) || value.contains(listing.site.replaceAll('www.', '')) ? '' : 'site $_failed\n'}'
-        '${value.contains(listing.phone) ? '' : 'phone $_failed\n'}'
-        'reviews:${_regex.firstMatch(value)?[1] ?? _failed}';
+        '${lower.contains('${listing.name.toLowerCase()}" itemprop="name"') ? '' : 'name $_failed\n'}'
+        '${lower.contains(listing.site) || lower.contains(listing.site.replaceAll('www.', '')) ? '' : 'site $_failed\n'}'
+        '${lower.contains(listing.phone) ? '' : 'phone $_failed\n'}'
+        'reviews ${_regex.firstMatch(lower)?[1] ?? _failed}';
 
     return Verified(text.contains(_failed), text);
   }
@@ -73,8 +76,12 @@ class Model extends GetxController with Log {
       Listing(
         urls[key],
         split[0].trim(),
-        'http://www.${split[4].trim()}',
-        'tel:+1${split[3].trim().replaceAll(_onlyNumbers, '')}',
+        split.length == 5
+            ? 'http://www.${split[4].trim().toLowerCase().replaceFirst('http://', '').replaceFirst('www.', '')}'
+            : _failed,
+        split.length == 5
+            ? 'tel:+1${split[3].trim().replaceAll(_onlyNumbers, '')}'
+            : _failed,
       ),
     );
   }
