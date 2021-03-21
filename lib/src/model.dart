@@ -25,13 +25,12 @@ class Verified {
 }
 
 class Model extends GetxController with Log {
-  final _sheet = Get.find<GSheets>();
-  final _regex = RegExp(r'(\d*) reviews');
+  final _googleSheet = Get.find<GSheets>();
+  final _regexReview = RegExp(r'(\d*) reviews');
   final _onlyNumbers = RegExp(r'[^0-9]');
-  final _sheetId = Get.arguments;
 
-  Future<List<Verified>> data() => _sheet
-      .spreadsheet(_sheetId)
+  Future<List<Verified>> data(String id) => _googleSheet
+      .spreadsheet(id)
       .then((value) => value.worksheetByTitle('Лист1'))
       .then(toListings)
       .then(toResult)
@@ -53,7 +52,7 @@ class Model extends GetxController with Log {
           .then(http.get)
           .then((value) => value.body)
           .then((value) => toVerified(value, listing))
-          .catchError((_) => Verified(true, '$_failed'));
+          .catchError((e) => Verified(true, '$_failed: $e'));
     });
   }
 
@@ -64,7 +63,7 @@ class Model extends GetxController with Log {
         '${lower.contains('${listing.name.toLowerCase()}" itemprop="name"') ? '' : 'name $_failed\n'}'
         '${lower.contains(listing.site) || lower.contains(listing.site.replaceAll('www.', '')) ? '' : 'site $_failed\n'}'
         '${lower.contains(listing.phone) ? '' : 'phone $_failed\n'}'
-        'reviews ${_regex.firstMatch(lower)?[1] ?? _failed}';
+        'reviews ${_regexReview.firstMatch(lower)?[1] ?? _failed}';
 
     return Verified(text.contains(_failed), text);
   }
