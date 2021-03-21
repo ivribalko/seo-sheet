@@ -11,7 +11,7 @@ void main() {
       future: Future.wait([
         IoC.init(),
       ]),
-      result: (dynamic _) => App(),
+      result: (_) => App(),
     ),
   );
 }

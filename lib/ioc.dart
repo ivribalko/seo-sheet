@@ -13,8 +13,10 @@ class IoC {
   static Future init() async {
     _initLog();
 
-    Get.put(GSheets(await rootBundle.loadString('assets/account-key.json')));
-    Get.put(Model());
+    Get.put(
+      await rootBundle.loadString('assets/account-key.json'),
+      tag: 'account-key',
+    );
   }
 
   static void _initLog() {
@@ -27,5 +29,13 @@ class IoC {
         name: record.loggerName,
       );
     });
+  }
+}
+
+class PageBind extends Bindings {
+  @override
+  void dependencies() {
+    Get.put(GSheets(Get.find<String>(tag: 'account-key')));
+    Get.put(Model());
   }
 }
