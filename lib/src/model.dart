@@ -13,8 +13,9 @@ class Listing {
   final String name;
   final String site;
   final String phone;
+  final String image;
 
-  Listing(this.url, this.name, this.site, this.phone);
+  Listing(this.url, this.name, this.site, this.phone, this.image);
 }
 
 class Verified {
@@ -63,6 +64,7 @@ class Model extends GetxController with Log {
         '${lower.contains('${listing.name.toLowerCase()}" itemprop="name"') ? '' : 'name $_failed\n'}'
         '${lower.contains(listing.site) || lower.contains(listing.site.replaceAll('www.', '')) ? '' : 'site $_failed\n'}'
         '${lower.contains(listing.phone) ? '' : 'phone $_failed\n'}'
+        '${lower.contains(listing.image) ? '' : 'image $_failed\n'}'
         'reviews ${_regexReview.firstMatch(lower)?[1] ?? _failed}';
 
     return Verified(text.contains(_failed), text);
@@ -81,6 +83,7 @@ class Model extends GetxController with Log {
         split.length == 5
             ? 'tel:+1${split[3].trim().replaceAll(_onlyNumbers, '')}'
             : _failed,
+        'lh5.googleusercontent.com',
       ),
     );
   }
