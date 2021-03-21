@@ -52,6 +52,9 @@ class Model extends GetxController with Log {
     final data = await value?.values.column(1);
     final urls = await value?.values.column(2);
     return data!
+        // there can be fewer urls
+        .take(urls!.length)
+        .toList()
         .asMap()
         .map((key, value) => toListing(value, key, urls!))
         .values;
