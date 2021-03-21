@@ -1,48 +1,16 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gsheets/gsheets.dart';
 import 'package:http/http.dart' as http;
+import 'package:math_expressions/math_expressions.dart' as ex;
 
 import 'common.dart';
 
 const _failed = 'failed';
-
-class Params {
-  final String worksheet;
-  final String sheet;
-  final int urlColumn;
-  final int listingColumn;
-  final int commentColumn;
-
-  Params(
-    this.worksheet,
-    this.sheet,
-    this.urlColumn,
-    this.listingColumn,
-    this.commentColumn,
-  );
-}
-
-class Listing {
-  final String url;
-  final String name;
-  final String site;
-  final String phone;
-  final String image;
-  final int index;
-
-  Listing(this.url, this.name, this.site, this.phone, this.image, this.index);
-}
-
-class Verified {
-  final bool failed;
-  final String text;
-  final int index;
-
-  Verified(this.failed, this.text, this.index);
-}
 
 class Model extends GetxController with Log {
   final _googleSheet = Get.find<GSheets>();
@@ -68,12 +36,13 @@ class Model extends GetxController with Log {
   ) async {
     final data = await value?.values.column(params.listingColumn);
     final urls = await value?.values.column(params.urlColumn);
+    final revs = await value?.values.column(params.reviewsColumn);
     return data!
         // there can be fewer urls
         .take(urls!.length)
         .toList()
         .asMap()
-        .map((key, value) => toListing(value, key, urls!))
+        .map((key, value) => toListing(value, key, urls, revs!))
         .values;
   }
 
@@ -84,7 +53,7 @@ class Model extends GetxController with Log {
           .then(http.get)
           .then((value) => value.body)
           .then((value) => toVerified(value, listing))
-          .catchError((e) => Verified(true, '$_failed: $e', -1));
+          .catchError((e) => Verified(Colors.red, '$_failed: $e', -1));
     });
   }
 
@@ -96,7 +65,7 @@ class Model extends GetxController with Log {
         .map((e) => e.value)
         .map(
           (e) => Verified(
-            true,
+            Colors.yellow,
             '$_failed ${e[0].phone}\nrows ${e.map((e) => e.index + 1).join(', ')}',
             -1,
           ),
@@ -106,7 +75,7 @@ class Model extends GetxController with Log {
             list
                 .map(
                   (e) => Verified(
-                    true,
+                    Colors.yellow,
                     '${e.name} ${e.phone} ${e.site}',
                     e.index,
                   ),
@@ -117,7 +86,7 @@ class Model extends GetxController with Log {
                 .map((e) => e.value)
                 .map(
                   (e) => Verified(
-                    true,
+                    Colors.yellow,
                     '$_failed ${e[0].text}\nrows ${e.map((e) => e.index + 1).join(', ')}',
                     -1,
                   ),
@@ -133,13 +102,23 @@ class Model extends GetxController with Log {
         '${lower.contains(listing.site) || lower.contains(listing.site.replaceAll('www.', '')) ? '' : 'site $_failed\n'}'
         '${lower.contains(listing.phone) ? '' : 'phone $_failed\n'}'
         '${lower.contains(listing.image) ? '' : 'image $_failed\n'}'
+        '${lower.contains(listing.image) ? '' : 'reviews $_failed\n'}'
         'reviews ${_regexReview.firstMatch(lower)?[1] ?? _failed}';
 
-    return Verified(text.contains(_failed), text, listing.index);
+    final color = text.contains(_failed) ? Colors.yellow : Colors.transparent;
+
+    return Verified(color, text, listing.index);
   }
 
-  MapEntry<int, Listing> toListing(String value, int key, List<String> urls) {
+  MapEntry<int, Listing> toListing(
+    String value,
+    int key,
+    List<String> urls,
+    List<String> revs,
+  ) {
     final split = value.split('\n');
+    final parse = ex.Parser().parse;
+    final model = ex.ContextModel();
     return MapEntry(
       key,
       Listing(
@@ -152,8 +131,53 @@ class Model extends GetxController with Log {
             ? 'tel:+1${split[3].trim().replaceAll(_onlyNumbers, '')}'
             : _failed,
         'lh5.googleusercontent.com',
+        parse(revs[key]).evaluate(ex.EvaluationType.INTERVAL, model),
         key,
       ),
     );
   }
+}
+
+class Params {
+  final String worksheet;
+  final String sheet;
+  final int urlColumn;
+  final int listingColumn;
+  final int reviewsColumn;
+
+  Params(
+    this.worksheet,
+    this.sheet,
+    this.urlColumn,
+    this.listingColumn,
+    this.reviewsColumn,
+  );
+}
+
+class Listing {
+  final String url;
+  final String name;
+  final String site;
+  final String phone;
+  final String image;
+  final int reviews;
+  final int index;
+
+  Listing(
+    this.url,
+    this.name,
+    this.site,
+    this.phone,
+    this.image,
+    this.reviews,
+    this.index,
+  );
+}
+
+class Verified {
+  final Color color;
+  final String text;
+  final int index;
+
+  Verified(this.color, this.text, this.index);
 }
