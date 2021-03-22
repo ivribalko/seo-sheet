@@ -30,7 +30,7 @@ class PagePage extends StatelessWidget {
     return ListTile(
       title: Text(data.text),
       leading: Text('#${data.index + 1}'),
-      tileColor: data.failed ? Colors.yellow : Colors.transparent,
+      tileColor: data.color,
     ).paddingAll(10);
   }
 }
